@@ -1,5 +1,6 @@
 from fractions import Fraction
 import struct
+import pickle
 
 
 class FileHandler(object):
@@ -21,7 +22,7 @@ class FileHandler(object):
             while len(binary_string) > 0:
                 window = binary_string[:31]
                 if len(window) < 31:
-                    window += '0' * (31-len(window))
+                    window += '0' * (31 - len(window))
                 i = int(window, 2)
                 f.write(struct.pack('i', i))
                 binary_string = binary_string[31:]
@@ -157,100 +158,37 @@ class Coder(object):
                 return key, i
         raise 'Value not found'
 
+    def save_statistics(self, filename):
+        """
+        Save trained statistics to the file.
+
+        Args:
+            filename: name of the file you want to write to
+        """
+        pickle.dump(self.__statistics, open(filename + ".txt", "wb"))
+
+    def load_statistics(self, filename):
+        """
+        Load saved statistics from the file.
+
+        Args:
+            filename: name of the file you want to read from
+        """
+        self.__statistics = pickle.load(open(filename + ".txt", "rb"))
+
 
 def main():
     coder = Coder()
-    fh = FileHandler("oda.txt")
-    text = """Bez serc, bez ducha, to szkieletów ludy;
-Młodości! dodaj mi skrzydła!
-Niech nad martwym wzlecę światem
-W rajską dziedzinę ułudy:
-Kędy zapał tworzy cudy,
-Nowości potrząsa kwiatem
-I obleka w nadziei złote malowidła.
-
-Niechaj, kogo wiek zamroczy,
-Chyląc ku ziemi poradlone czoło,
-Takie widzi świata koło,
-Jakie tępymi zakreśla oczy.
-Młodości! ty nad poziomy
-Wylatuj, a okiem słońca
-Ludzkości całe ogromy
-Przeniknij z końca do końca.
-
-Patrz na dół - kędy wieczna mgła zaciemia
-Obszar gnuśności zalany odmętem;
-To ziemia!
-Patrz. jak nad jej wody trupie
-Wzbił się jakiś płaz w skorupie.
-Sam sobie sterem, żeglarzem, okrętem;
-Goniąc za żywiołkami drobniejszego płazu,
-To się wzbija, to w głąb wali;
-Nie lgnie do niego fala, ani on do fali;
-A wtem jak bańka prysnął o szmat głazu.
-Nikt nie znał jego życia, nie zna jego zguby:
-To samoluby!
-
-Młodości! tobie nektar żywota
-Natenczas słodki, gdy z innymi dzielę:
-Serca niebieskie poi wesele,
-Kiedy je razem nić powiąże złota.
-Razem, młodzi przyjaciele!...
-W szczęściu wszystkiego są wszystkich cele;
-Jednością silni, rozumni szałem,
-Razem, młodzi przyjaciele!...
-I ten szczęśliwy, kto padł wśród zawodu,
-Jeżeli poległym ciałem
-Dał innym szczebel do sławy grodu.
-Razem, młodzi przyjaciele!...
-Choć droga stroma i śliska,
-Gwałt i słabość bronią wchodu:
-Gwałt niech się gwałtem odciska,
-A ze słabością łamać uczmy się za młodu!
-
-Dzieckiem w kolebce kto łeb urwał Hydrze,
-Ten młody zdusi Centaury,
-Piekłu ofiarę wydrze,
-Do nieba pójdzie po laury.
-Tam sięgaj, gdzie wzrok nie sięga;
-Łam, czego rozum nie złamie:
-Młodości! orla twych lotów potęga,
-Jako piorun twoje ramię.
-
-Hej! ramię do ramienia! spólnymi łańcuchy
-Opaszmy ziemskie kolisko!
-Zestrzelmy myśli w jedno ognisko
-I w jedno ognisko duchy!...
-Dalej, bryło, z posad świata!
-Nowymi cię pchniemy tory,
-Aż opleśniałej zbywszy się kory,
-Zielone przypomnisz lata.
-
-A jako w krajach zamętu i nocy,
-Skłóconych żywiołów waśnią,
-Jednym "stań się" z bożej mocy
-Świat rzeczy stanął na zrębie;
-Szumią wichry, cieką głębie,
-A gwiazdy błękit rozjaśnią -
-
-W krajach ludzkości jeszcze noc głucha:
-Żywioły chęci jeszcze są w wojnie;
-Oto miłość ogniem zionie,
-Wyjdzie z zamętu świat ducha:
-Młodość go pocznie na swoim łonie,
-A przyjaźń w wieczne skojarzy spojnie.
-
-Pryskają nieczułe lody
-I przesądy światło ćmiące;
-Witaj, jutrzenko swobody,
-Zbawienia za tobą słońce!"""
-    code = coder.train_encode(text)
+    handler = FileHandler("file.txt")
+    code = coder.train_encode("abcdefg")
+    # coder.save_statistics("stat")
+    handler.write_file(code)
     print(code)
-    fh.write_file(code)
-    with open("oda2.txt", "w") as f:
-        f.write(text)
-    print(fh.read_file())
-    print(coder.decode(fh.read_file()))
+
+    # coder.load_statistics("stat")
+    print("Code from encoding:", coder.decode(code))
+    code = handler.read_file()
+    print("Code read from file:", coder.decode(code))
 
 
 if __name__ == "__main__":
