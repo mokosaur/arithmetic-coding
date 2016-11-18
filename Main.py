@@ -1,6 +1,7 @@
 from fractions import Fraction
 import struct
 import pickle
+from collections import OrderedDict
 
 
 class FileHandler(object):
@@ -55,7 +56,7 @@ class Coder(object):
             text: a piece of text from which you want to get the statistics
         """
         text += str(0)
-        counts = {}
+        counts = OrderedDict()
         for letter in text:
             counts[letter] = counts.get(letter, 0) + 1
 
@@ -98,7 +99,7 @@ class Coder(object):
                 else:
                     break
         follow += 1
-        if interval[1] < Fraction(1, 4):
+        if interval[0] < Fraction(1, 4):
             code += '0' + follow * '1'
         else:
             code += '1' + follow * '0'
@@ -123,7 +124,7 @@ class Coder(object):
         interval = (Fraction(0), Fraction(1))
         while True:
             length = interval[1] - interval[0]
-            letter, prob_interval = self.get_letter((value - interval[0]) * 1 / length)
+            letter, prob_interval = self.get_letter((value - interval[0]) / length)
             text += letter
             if letter == str(0):
                 break
@@ -180,7 +181,7 @@ class Coder(object):
 def main():
     coder = Coder()
     handler = FileHandler("file.txt")
-    code = coder.train_encode("abcdefg")
+    code = coder.train_encode("b")
     # coder.save_statistics("stat")
     handler.write_file(code)
     print(code)
